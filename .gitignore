@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# data
+CIFAR10/
+
+# PyCharm
+.idea/
+
+# Model Weights
+*.pt
+*.pth
