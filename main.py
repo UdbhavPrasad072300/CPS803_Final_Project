@@ -44,12 +44,12 @@ if __name__ == "__main__":
 
     image_size = 32
     channel_size = 3
-    patch_size = 4
+    patch_size = 8
     embed_size = 512
     num_heads = 8
     classes = 10
-    num_layers = 3
-    hidden_size = 512
+    num_layers = 2
+    hidden_size = 256
     dropout = 0.2
 
     # Instantiate Model
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=config.LR)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=1)
 
-    loss_hist = train_student(model, train_loader, val_loader, criterion, optimizer, config, DEVICE)
+    loss_hist = train_student(model, train_loader, val_loader, criterion, optimizer, config, teacher_model, DEVICE)
 
     # Plot Train Stats
 

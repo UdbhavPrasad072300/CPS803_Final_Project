@@ -1,8 +1,10 @@
 import torch
 
 
-def train_student(model, train_loader, val_loader, criterion, optimizer, config, DEVICE="cpu"):
+def train_student(model, train_loader, val_loader, criterion, optimizer, config, teacher, DEVICE="cpu"):
     loss_hist = {"train accuracy": [], "train loss": [], "val accuracy": []}
+
+    teacher.to(DEVICE)
 
     for epoch in range(1, config.NUM_EPOCHES + 1):
         model.train()
@@ -16,7 +18,12 @@ def train_student(model, train_loader, val_loader, criterion, optimizer, config,
             img = img.to(DEVICE)
             labels = labels.to(DEVICE)
 
-            preds, teacher_preds = model(img)
+            #preds, teacher_preds = model(img)
+            preds = model(img)
+            teacher_preds = teacher(img)
+
+            #print(teacher_preds.size())
+            #print(type(preds))
 
             loss = criterion(teacher_preds, preds, labels)
             optimizer.zero_grad()
@@ -38,7 +45,8 @@ def train_student(model, train_loader, val_loader, criterion, optimizer, config,
                 img = img.to(DEVICE)
                 labels = labels.to(DEVICE)
 
-                preds, teacher_preds = model(img)
+                #preds, teacher_preds = model(img)
+                preds = model(img)
 
                 y_pred_test.extend(preds.detach().argmax(dim=-1).tolist())
                 y_true_test.extend(labels.detach().tolist())
@@ -59,7 +67,7 @@ def train_student(model, train_loader, val_loader, criterion, optimizer, config,
         print("-------------------------------------------------")
         print("Epoch: {} Train mean loss: {:.8f}".format(epoch, epoch_train_loss))
         print("       Train Accuracy%: ", accuracy, "==", total_correct, "/", total)
-        print("       Test Accuracy%: ", test_accuracy, "==", test_total_correct, "/", test_total)
+        print("       Validation Accuracy%: ", test_accuracy, "==", test_total_correct, "/", test_total)
         print("-------------------------------------------------")
 
     return loss_hist

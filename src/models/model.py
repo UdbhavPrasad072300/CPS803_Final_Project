@@ -164,7 +164,7 @@ class ViT(nn.Module):
         for encoder in self.encoders:
             x = encoder(x)
 
-        x = x[:, 0, :]
+        x = x[:, -1, :]
 
         x = F.log_softmax(self.classifier(self.norm(x)), dim=-1)
 
@@ -213,10 +213,10 @@ class DeiT(nn.Module):
         self.distillation_token = nn.Parameter(torch.randn(1, 1, self.embed_size))
         self.positional_encoding = nn.Parameter(torch.randn(1, self.num_patches + 2, self.embed_size))
 
-        self.teacher_model = teacher_model
-        for parameter in self.teacher_model.parameters():
-            parameter.requires_grad = False
-        self.teacher_model.eval()
+        self.teacher_model = None #teacher_model
+        #for parameter in self.teacher_model.parameters():
+        #    parameter.requires_grad = False
+        #self.teacher_model.eval()
 
         self.encoders = nn.ModuleList([])
         for layer in range(self.num_layers):
@@ -229,7 +229,7 @@ class DeiT(nn.Module):
     def forward(self, x, mask=None):
         b, c, h, w = x.size()
 
-        teacher_logits_vector = self.teacher_model(x)
+        #teacher_logits_vector = self.teacher_model(x)
 
         x = x.reshape(b, int((h / self.p) * (w / self.p)), c * self.p * self.p)
         x = self.embeddings(x)
@@ -247,11 +247,13 @@ class DeiT(nn.Module):
         for encoder in self.encoders:
             x = encoder(x)
 
-        x = x[:, 0, :]
+        x = x[:, -1, :]
 
         x = self.classifier(self.norm(x))
 
-        return x, teacher_logits_vector
+        #print("x is {}".format(x.size()))
+
+        return x #teacher_logits_vector
 
 
 class VGG16_classifier(nn.Module):
