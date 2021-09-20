@@ -237,7 +237,7 @@ class DeiT(nn.Module):
         b, n, e = x.size()
 
         class_token = self.class_token.expand(b, 1, e)
-        x = torch.cat((x, class_token), dim=1)
+        x = torch.cat((class_token, x), dim=1)
 
         distillation_token = self.class_token.expand(b, 1, e)
         x = torch.cat((x, distillation_token), dim=1)
@@ -247,13 +247,11 @@ class DeiT(nn.Module):
         for encoder in self.encoders:
             x = encoder(x)
 
-        x = x[:, -1, :]
+        x, distillation_token = x[:, 0, :], x[:, -1, :]
 
         x = self.classifier(self.norm(x))
 
-        #print("x is {}".format(x.size()))
-
-        return x #teacher_logits_vector
+        return x  # , distillation_token
 
 
 class VGG16_classifier(nn.Module):

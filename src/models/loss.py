@@ -27,7 +27,7 @@ class Hard_Distillation_Loss(nn.Module):
         self.CE_student = nn.CrossEntropyLoss()
 
     def forward(self, teacher_y, student_y, y):
-
-        loss = (1/2) * (self.CE_student(student_y, y)) + (1/2) * (self.CE_teacher(teacher_y, y))
+        
+        loss = (1/2) * (self.CE_student(student_y, y)) + (1/2) * (self.CE_teacher(student_y, teacher_y.argmax(dim=-1)))
 
         return loss
