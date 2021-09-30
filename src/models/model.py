@@ -166,7 +166,7 @@ class ViT(nn.Module):
 
         x = x[:, -1, :]
 
-        x = F.log_softmax(self.classifier(self.norm(x)), dim=-1)
+        x = self.classifier(self.norm(x))
 
         return x
 
