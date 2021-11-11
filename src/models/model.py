@@ -292,3 +292,40 @@ class VGG16_classifier(nn.Module):
             x = self.preprocess(x)
         x = self.vgg16(x)
         return x
+
+
+class ResNet_classifier(nn.Module):
+    def __init__(self, classes, hidden_size, img_size_preprocess=224, preprocess_flag=False, dropout=0.1):
+        super(ResNet_classifier, self).__init__()
+
+        self.classes = classes
+        self.hidden_size = hidden_size
+        self.img_size_preprocess = img_size_preprocess
+        self.preprocess_flag = preprocess_flag
+        self.dropout = dropout
+
+        self.resnet = torchvision.models.resnet34(pretrained=True)
+
+        for parameter in self.resnet.parameters():
+            parameter.requires_grad = True
+
+        self.preprocess = torchvision.transforms.Compose([
+            torchvision.transforms.Resize(size=(self.img_size_preprocess, self.img_size_preprocess)),
+            torchvision.transforms.ToTensor()
+        ])
+
+        self.classifier = nn.Sequential(
+            nn.Linear(1000, self.hidden_size * 2),
+            nn.ReLU(),
+            nn.Dropout(self.dropout),
+            nn.Linear(self.hidden_size * 2, self.hidden_size * 1),
+            nn.ReLU(),
+            nn.Dropout(self.dropout),
+            nn.Linear(self.hidden_size, self.classes)
+        )
+
+    def forward(self, x):
+        if self.preprocess_flag:
+            x = self.preprocess(x)
+        x = self.resnet(x)
+        return self.classifier(x)
