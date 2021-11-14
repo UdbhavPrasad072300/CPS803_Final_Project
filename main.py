@@ -62,7 +62,6 @@ if __name__ == "__main__":
                  classes=classes,
                  num_layers=num_layers,
                  hidden_size=hidden_size,
-                 teacher_model=teacher_model,
                  dropout=dropout
                  ).to(DEVICE)
     print(model)

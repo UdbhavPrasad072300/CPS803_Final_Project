@@ -184,12 +184,11 @@ class DeiT(nn.Module):
             classes         (int): Number in of distinct classes for classification
             num_layers      (int): Number of encoder blocks in DeiT
             hidden_size     (int): Number of hidden units in feed forward of encoder
-            teacher_model   (object): Teacher model for data distillation
             dropout         (float, optional): A probability from 0 to 1 which determines the dropout rate
     """
 
     def __init__(self, image_size: int, channel_size: int, patch_size: int, embed_size: int, num_heads: int,
-                 classes: int, num_layers: int, hidden_size: int, teacher_model, dropout: float = 0.1):
+                 classes: int, num_layers: int, hidden_size: int, dropout: float = 0.1):
         super(DeiT, self).__init__()
 
         self.image_size = image_size
@@ -213,11 +212,6 @@ class DeiT(nn.Module):
         self.distillation_token = nn.Parameter(torch.randn(1, 1, self.embed_size))
         self.positional_encoding = nn.Parameter(torch.randn(1, self.num_patches + 2, self.embed_size))
 
-        self.teacher_model = None #teacher_model
-        #for parameter in self.teacher_model.parameters():
-        #    parameter.requires_grad = False
-        #self.teacher_model.eval()
-
         self.encoders = nn.ModuleList([])
         for layer in range(self.num_layers):
             self.encoders.append(VisionEncoder(self.embed_size, self.num_heads, self.hidden_size, self.dropout))
@@ -228,8 +222,6 @@ class DeiT(nn.Module):
 
     def forward(self, x, mask=None):
         b, c, h, w = x.size()
-
-        #teacher_logits_vector = self.teacher_model(x)
 
         x = x.reshape(b, int((h / self.p) * (w / self.p)), c * self.p * self.p)
         x = self.embeddings(x)
@@ -251,7 +243,7 @@ class DeiT(nn.Module):
 
         x = self.classifier(self.norm(x))
 
-        return x  # , distillation_token
+        return x, distillation_token
 
 
 class VGG16_classifier(nn.Module):

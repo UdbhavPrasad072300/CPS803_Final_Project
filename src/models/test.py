@@ -1,18 +1,19 @@
 import torch
 
 
-def test():
+def test(model, test_loader, DEVICE):
     with torch.no_grad():
         model.eval()
 
         y_true_test = []
         y_pred_test = []
 
-        for batch_idx, (img, labels) in enumerate(testloader):
-            img = img.to(device)
-            label = label.to(device)
+        for batch_idx, (img, labels) in enumerate(test_loader):
+            img = img.to(DEVICE)
+            labels = labels.to(DEVICE)
 
-            preds, _ = model(img)
+            # preds, teacher_preds = model(img)
+            preds = model(img)
 
             y_pred_test.extend(preds.detach().argmax(dim=-1).tolist())
             y_true_test.extend(labels.detach().tolist())
@@ -22,4 +23,4 @@ def test():
         accuracy = total_correct * 100 / total
 
         print("Test Accuracy%: ", accuracy, "==", total_correct, "/", total)
-    return
+    return accuracy

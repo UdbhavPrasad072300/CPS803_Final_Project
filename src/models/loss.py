@@ -2,19 +2,20 @@ import torch.nn as nn
 
 
 class Soft_Distillation_Loss(nn.Module):
-    def __init__(self, lambda_balancing: float):
+    def __init__(self, lambda_balancing: float, temperature):
         super(Soft_Distillation_Loss, self).__init__()
 
         self.lambda_balancing = lambda_balancing
+        self.temperature = temperature
 
         self.CE_student = nn.CrossEntropyLoss()
         self.KLD_teacher = nn.KLDivLoss()
 
-    def forward(self, teacher_y, student_y, y, temperature):
+    def forward(self, teacher_y, student_y, y):
 
         loss = ((1-self.lambda_balancing) * self.CE_student(student_y, y)) + \
-               (self.lambda_balancing * (temperature**2) *
-                self.KLD_teacher(student_y / temperature, teacher_y / temperature))
+               (self.lambda_balancing * (self.temperature**2) *
+                self.KLD_teacher(student_y / self.temperature, teacher_y / self.temperature))
 
         return loss
 

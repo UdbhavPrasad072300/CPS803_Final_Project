@@ -9,6 +9,7 @@ def getTransform():
     transform = transforms.Compose(
         [
             transforms.ToTensor(),
+            transforms.GaussianBlur(5),
             transforms.Normalize(mean, std)
         ]
     )
