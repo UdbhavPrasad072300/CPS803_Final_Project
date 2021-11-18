@@ -1,4 +1,9 @@
-# CPS803_Final_Project
+# CPS803_Final_Project (Group 27)
+
+Udbhav Prasad <br>
+Matthew Meszaros <br>
+Jordan Quan <br>
+Muhammad Siddiqui <br>
 
 ## How to Run
 
