@@ -32,12 +32,12 @@ if __name__ == "__main__":
 
     test_acc = []
 
-    # Get 5 ViT Models
+    # Get 4 ViT Models
 
     img_size = 32
     c_size = 3
-    p_size = 16
-    e_size = 256
+    p_size = 8
+    e_size = 512
     n_heads = 8
     classes = 10
     hidden_size = 256
@@ -53,10 +53,6 @@ if __name__ == "__main__":
     loss_hist_1 = train(model, train_loader, val_loader, criterion, optimizer, config, DEVICE)
     test_acc.append(test(model, test_loader, DEVICE))
     torch.save(model.state_dict(), './trained_models/vit_encoder_1.pt')
-
-    plot_sequential(loss_hist_1["train accuracy"], "1 Encoder - ViT", "Epoch", "Train Accuracy")
-    plot_sequential(loss_hist_1["train loss"], "1 Encoder - ViT", "Epoch", "Train Loss")
-    plot_sequential(loss_hist_1["val accuracy"], "1 Encoder - ViT", "Epoch", "Validation Accuracy")
 
     # 2 Encoder
 
@@ -85,16 +81,11 @@ if __name__ == "__main__":
     test_acc.append(test(model, test_loader, DEVICE))
     torch.save(model.state_dict(), './trained_models/vit_encoder_4.pt')
 
-    # 5 Encoder
-
-    print("-" * 20, "ENCODER 5", "-" * 20)
-    model = ViT(img_size, c_size, p_size, e_size, n_heads, classes, 5, hidden_size, dropout=dropout).to(DEVICE)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.LR)
-    loss_hist_5 = train(model, train_loader, val_loader, criterion, optimizer, config, DEVICE)
-    test_acc.append(test(model, test_loader, DEVICE))
-    torch.save(model.state_dict(), './trained_models/vit_encoder_5.pt')
-
     # Plot Train Stats
+
+    plot_sequential(loss_hist_1["train accuracy"], "1 Encoder - ViT", "Epoch", "Train Accuracy")
+    plot_sequential(loss_hist_1["train loss"], "1 Encoder - ViT", "Epoch", "Train Loss")
+    plot_sequential(loss_hist_1["val accuracy"], "1 Encoder - ViT", "Epoch", "Validation Accuracy")
 
     plot_sequential(loss_hist_2["train accuracy"], "2 Encoder - ViT", "Epoch", "Train Accuracy")
     plot_sequential(loss_hist_2["train loss"], "2 Encoder - ViT", "Epoch", "Train Loss")
@@ -108,13 +99,9 @@ if __name__ == "__main__":
     plot_sequential(loss_hist_4["train loss"], "4 Encoder - ViT", "Epoch", "Train Loss")
     plot_sequential(loss_hist_4["val accuracy"], "4 Encoder - ViT", "Epoch", "Validation Accuracy")
 
-    plot_sequential(loss_hist_5["train accuracy"], "5 Encoder - ViT", "Epoch", "Train Accuracy")
-    plot_sequential(loss_hist_5["train loss"], "5 Encoder - ViT", "Epoch", "Train Loss")
-    plot_sequential(loss_hist_5["val accuracy"], "5 Encoder - ViT", "Epoch", "Validation Accuracy")
-
     plot_sequential(test_acc, "Test Accuracies - Encoder 1-5 - ViT", "Encoder Num", "Test Accuracy")
 
-    # [50.4, 55.64, 58.1, 58.12, 57.92]
+    # [52.22, 57.96, 58.06, 29.52]
     print(test_acc)
 
     print("Program has Ended")

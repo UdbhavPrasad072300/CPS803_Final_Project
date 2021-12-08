@@ -18,8 +18,8 @@ def train_student(model, train_loader, val_loader, criterion, optimizer, config,
             img = img.to(DEVICE)
             labels = labels.to(DEVICE)
 
-            # preds, distill_token = model(img)
-            preds = model(img)
+            preds, distill_token = model(img)
+            # preds = model(img)
             teacher_preds = teacher(img)
 
             loss = criterion(teacher_preds, preds, labels)
@@ -42,8 +42,8 @@ def train_student(model, train_loader, val_loader, criterion, optimizer, config,
                 img = img.to(DEVICE)
                 labels = labels.to(DEVICE)
 
-                # preds, teacher_preds = model(img)
-                preds = model(img)
+                preds, teacher_preds = model(img)
+                # preds = model(img)
 
                 y_pred_test.extend(preds.detach().argmax(dim=-1).tolist())
                 y_true_test.extend(labels.detach().tolist())

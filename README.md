@@ -10,7 +10,7 @@ Muhammad Siddiqui <br>
 Run VGG19_CIFAR10.ipynb to generate teacher model used
 
 ```bash
-python main.py
+python rtsuite.py
 ```
 
 ## Installing Requirements:
@@ -29,7 +29,7 @@ pip install
 ├── README.md               <- README for developers using this project.
 ├── data                    <- Data used for this project
 ├── trained_models          <- Trained and serialized models
-├── reports                 <- Generated analysis as PDF & LaTeX
+├── report                  <- Output Results and Report
 ├── requirements.txt        <- The requirements file for reproducing the project
 ├── src                     <- Source code for use in this project
 │   ├── data                <- Scripts to turn raw data into features for modeling

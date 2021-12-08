@@ -12,8 +12,8 @@ def test(model, test_loader, DEVICE):
             img = img.to(DEVICE)
             labels = labels.to(DEVICE)
 
-            # preds, teacher_preds = model(img)
-            preds = model(img)
+            preds, teacher_preds = model(img)
+            # preds = model(img)
 
             y_pred_test.extend(preds.detach().argmax(dim=-1).tolist())
             y_true_test.extend(labels.detach().tolist())

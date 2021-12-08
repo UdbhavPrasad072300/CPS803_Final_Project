@@ -5,7 +5,7 @@ import torch.nn as nn
 
 import src.config as config
 from src.data.dataset import get_dataloader
-from src.models.model import ViT, ResNet_classifier
+from src.models.model import ViT, ResNet_classifier, VGG16_classifier
 from src.models.train import train_student
 from src.models.loss import Hard_Distillation_Loss, Soft_Distillation_Loss
 from src.visualization.visualize import plot_sequential
@@ -37,29 +37,34 @@ if __name__ == "__main__":
 
     img_size = 32
     c_size = 3
-    p_size = 16
-    e_size = 256
-    n_heads = 4
+    p_size = 8
+    e_size = 512
+    n_heads = 8
     classes = 10
     hidden_size = 256
     dropout = 0.3
 
-    criterion = Soft_Distillation_Loss(0.5, 1)
+    # criterion = Soft_Distillation_Loss(0.2, 2)
+    criterion = Hard_Distillation_Loss()
 
     # Teacher
 
-    teacher_model = ResNet_classifier(10, 512, preprocess_flag=False, dropout=0.3)
-    teacher_model.load_state_dict(torch.load("./trained_models/resnet50_cifar10.pt"))
+    # teacher_model = ResNet_classifier(10, 512, preprocess_flag=False, dropout=0.3)
+    # teacher_model.load_state_dict(torch.load("./trained_models/resnet50_cifar10.pt"))
+    # teacher_model.preprocess_flag = False
+
+    teacher_model = VGG16_classifier(10, 512, preprocess_flag=False, dropout=0.3).to(DEVICE)
+    teacher_model.load_state_dict(torch.load("./trained_models/vgg16_cifar10.pt"))
     teacher_model.preprocess_flag = False
 
     # 1 Encoder
 
-    #print("-" * 20, "ENCODER 1", "-" * 20)
-    #model = ViT(img_size, c_size, p_size, e_size, n_heads, classes, 1, hidden_size, dropout=dropout).to(DEVICE)
-    #optimizer = torch.optim.Adam(model.parameters(), lr=config.LR)
-    #loss_hist_1 = train_student(model, train_loader, val_loader, criterion, optimizer, config, teacher_model, DEVICE)
-    #test_acc.append(test(model, test_loader, DEVICE))
-    #torch.save(model.state_dict(), './trained_models/vit_encoder_resnet_kd_1.pt')
+    print("-" * 20, "ENCODER 1", "-" * 20)
+    model = ViT(img_size, c_size, p_size, e_size, n_heads, classes, 1, hidden_size, dropout=dropout).to(DEVICE)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.LR)
+    loss_hist_1 = train_student(model, train_loader, val_loader, criterion, optimizer, config, teacher_model, DEVICE)
+    test_acc.append(test(model, test_loader, DEVICE))
+    torch.save(model.state_dict(), './trained_models/vit_encoder_resnet_kd_1.pt')
 
     # 2 Encoder
 
@@ -88,15 +93,6 @@ if __name__ == "__main__":
     test_acc.append(test(model, test_loader, DEVICE))
     torch.save(model.state_dict(), './trained_models/vit_encoder_resnet_kd_4.pt')
 
-    # 5 Encoder
-
-    print("-" * 20, "ENCODER 5", "-" * 20)
-    model = ViT(img_size, c_size, p_size, e_size, n_heads, classes, 5, hidden_size, dropout=dropout).to(DEVICE)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.LR)
-    loss_hist_5 = train_student(model, train_loader, val_loader, criterion, optimizer, config, teacher_model, DEVICE)
-    test_acc.append(test(model, test_loader, DEVICE))
-    torch.save(model.state_dict(), './trained_models/vit_encoder_resnet_kd_5.pt')
-
     # Plot Train Stats
 
     plot_sequential(loss_hist_1["train accuracy"], "1 Encoder - ViT - Resnet KD", "Epoch", "Train Accuracy")
@@ -115,13 +111,12 @@ if __name__ == "__main__":
     plot_sequential(loss_hist_4["train loss"], "4 Encoder - ViT", "Epoch", "Train Loss")
     plot_sequential(loss_hist_4["val accuracy"], "4 Encoder - ViT", "Epoch", "Validation Accuracy")
 
-    plot_sequential(loss_hist_5["train accuracy"], "5 Encoder - ViT - Resnet KD", "Epoch", "Train Accuracy")
-    plot_sequential(loss_hist_5["train loss"], "5 Encoder - ViT - Resnet KD", "Epoch", "Train Loss")
-    plot_sequential(loss_hist_5["val accuracy"], "5 Encoder - ViT - Resnet KD", "Epoch", "Validation Accuracy")
-
     plot_sequential(test_acc, "Test Accuracies - Encoder 1-5 - ViT - Resnet KD", "Encoder Num", "Test Accuracy")
 
-    # [49.9, 55.78, 57.02, 57.62, 59.64]
+    # Resnet - Hard Label = [51.54, 59.32, 59.32, 9.98]
+    # Resnet - Soft Label = [36.4, 50.82, 55.74, 56.14]
+    # VGG - Hard Label = [51.28, 58.42, 58.22, 56.1]
+    # VGG - Soft Label = [43.9, 56.46, 54.94, 55.5]
     print(test_acc)
 
     print("Program has Ended")

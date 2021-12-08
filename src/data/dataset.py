@@ -9,7 +9,9 @@ def getTransform():
     transform = transforms.Compose(
         [
             transforms.ToTensor(),
-            transforms.GaussianBlur(5),
+            #transforms.GaussianBlur(5),
+            #transforms.RandomHorizontalFlip(),
+            #transforms.RandomVerticalFlip(),
             transforms.Normalize(mean, std)
         ]
     )
